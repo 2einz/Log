@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <memory>
 #include <string>
-#include <thread>
+#include <chrono>
 
 #include "level.h"
 
@@ -25,38 +25,38 @@ public:
              std::string message,
              std::shared_ptr<Logger> logger);
 
-  // 获取日志级别
-  Level level() const { return level_; }
+    // 获取日志级别
+    Level level() const { return level_; }
 
-  // 获取文件名
-  const char* file() const { return file_; }
+    // 获取文件名
+    const char* file() const { return file_; }
 
-  // 获取行号
-  uint32_t line() const { return line_; }
+    // 获取行号
+    uint32_t line() const { return line_; }
 
-  // 获取程序启动到当前的毫秒数
-  uint32_t elapse() const { return elapse_; }
+    // 获取程序启动到当前的毫秒数
+    uint32_t elapse() const { return elapse_; }
 
-  // 获取pthread线程ID（用户态）
-  pthread_t pthread_id() const { return pthread_id_; }
+    // 获取pthread线程ID（用户态）
+    pthread_t pthread_id() const { return pthread_id_; }
 
-  // 获取协程ID
-  uint64_t fiber_id() const { return fiber_id_; }
+    // 获取协程ID
+    uint64_t fiber_id() const { return fiber_id_; }
 
-  // 获取线程名
-  const std::string& thread_name() const { return thread_name_; }
+    // 获取线程名
+    const std::string& thread_name() const { return thread_name_; }
 
-  // 获取函数名
-  const char* function() const { return function_; }
+    // 获取函数名
+    const char* function() const { return function_; }
 
-  // 获取日志消息内容
-  const std::string& message() const { return message_; }
+    // 获取日志消息内容
+    const std::string& message() const { return message_; }
 
-  // 获取日志产生的时间戳
-  const std::chrono::system_clock::time_point& timestamp() const { return timestamp_; }
+    // 获取日志产生的时间戳
+    const std::chrono::system_clock::time_point& timestamp() const { return timestamp_; }
 
-  // 获取关联的日志器
-  std::shared_ptr<Logger> logger() const { return logger_; }
+    // 获取关联的日志器
+    std::shared_ptr<Logger> logger() const { return logger_; }
 
 private:
 private:

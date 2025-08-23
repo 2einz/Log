@@ -60,7 +60,7 @@ bool Level::cmp(int value) { return cmp(static_cast<LevelType>(value)); }
 
 bool Level::cmp(Level value) { return cmp(value.level()); }
 
-bool Level::cmp(LevelType value) { return level_ < value; }
+bool Level::cmp(LevelType value) { return true; }
 
 std::string Level::string() { return ToString(level_); }
 

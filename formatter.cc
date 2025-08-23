@@ -1,55 +1,17 @@
-#include "layout.h"
+#include "formatter.h"
 
-#include <chrono>
-#include <cstring>
 #include <ctime>
 #include <iterator>  // for std::back_inserter
+#include <chrono>
 
 #include <fmt/chrono.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
+
+#include "fmt/base.h"
+#include "fmt/format.h"
+#include "logger.h"
 
 namespace rein {
 namespace log {
-
-// 模板工厂函数：创建无参数的FormatterItem
-template <typename Type>
-Layout::FormatterFactory make_factory() {
-    return []() { return std::make_shared<Type>(); };
-}
-
-// 模板工厂函数：创建带参数的FormatterItem
-template <typename Type>
-Layout::FormatterFactory make_factory(const std::string &param) {
-    return [param]() { return std::make_shared<Type>(param); };
-}
-
-const std::map<std::string, Layout::FormatterFactory> Layout::formatters_ = {
-    {"c", make_factory<NameFormatter>()},
-    {"d", make_factory<DateTimeFormatter>("")},  // 实际参数在解析时提取
-    {"f", make_factory<FileNameFormatter>()},
-    {"l", make_factory<LineFormatter>()},
-    {"m", make_factory<MessageFormatter>()},
-    {"n", make_factory<NewLineFormatter>()},
-    {"N", make_factory<ThreadNameFormatter>()},
-    {"p", make_factory<LevelFormatter>()},
-    {"r", make_factory<ElapseFormatter>()},
-    {"T", make_factory<TabFormatter>()},
-    {"s", make_factory<StringFormatter>("")},
-    {"t", make_factory<ThreadIdFormatter>()}};
-
-Layout::Layout(const std::string &pattern)
-    : pattern_(std::move(pattern)) {
-    parse_pattern();
-}
-
-std::string Layout::format(const std::shared_ptr<LogEvent> &event, Level level) {
-    fmt::memory_buffer buffer;
-    for (const auto &item : items_) {
-        item->format(buffer, event);
-    }
-    return fmt::to_string(buffer);
-}
 
 void NameFormatter::format(fmt::memory_buffer &buffer, const std::shared_ptr<LogEvent> &event) {
     fmt::format_to(std::back_inserter(buffer), "{}", event->logger()->name());
@@ -59,33 +21,30 @@ DateTimeFormatter::DateTimeFormatter(const std::string &format)
     : format_(std::move(format)) {}
 
 void DateTimeFormatter::format(fmt::memory_buffer &buffer, const std::shared_ptr<LogEvent> &event) {
-    // 转换为秒级时间
-    std::time_t time = std::chrono::system_clock::to_time_t(event->timestamp());
-
-    // 转换为本地时间
+    auto timestamp = event->timestamp();
+    std::time_t time = std::chrono::system_clock::to_time_t(timestamp);  // 转换秒级时间
     std::tm local_tm;
-    std::memset(&local_tm, 0, sizeof(local_tm));
-
-    // linux系统使用
     localtime_r(&time, &local_tm);
 
-    // 计算毫秒部分（0-999）
-    auto tp_sec = std::chrono::system_clock::from_time_t(time);  // 秒级时间点
-    auto ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(event->timestamp() - tp_sec).count();
+    // 计算毫秒
+    auto tp_sec = std::chrono::system_clock::from_time_t(time);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp - tp_sec).count();
 
-    // 先处理基础时间部分（年月日时分秒）
-    std::string time_str;
+    // 先替换%f为毫秒，得到最终格式字符串
+    // fmt::println("{}\n", fmt::format("{:%Y-%m-%d %H:%M:%S}", local_tm));
+    // {:%Y-%m-%d %H:%M:%S.%f}
 
-    fmt::format_to(std::back_inserter(time_str), fmt::runtime(format_), local_tm);
-
-    // 处理毫秒（如果格式中包含%f）
-    if (format_.find("%f") != std::string::npos) {
-        // 替换%f为实际毫秒值
-        fmt::format_to(std::back_inserter(time_str), ".{:03d}", ms);
+    size_t dot_f_pos = format_.find(".%f");
+    if (dot_f_pos == std::string::npos) {
+        // 没有找到毫秒占位符，直接格式化
+        fmt::format_to(std::back_inserter(buffer), fmt::runtime(format_), local_tm);
+        return;
     }
+    // 如果有.%f，就使用字符串
+    std::string prefix_format = "{" + format_.substr(0, dot_f_pos) + "}";
+    std::string time_str = fmt::format(fmt::runtime(prefix_format), local_tm);
 
-    fmt::format_to(std::back_inserter(buffer), "{}", time_str);
+    fmt::format_to(std::back_inserter(buffer), "{}{}", time_str, fmt::format(".{:03}", ms));
 }
 
 void FileNameFormatter::format(fmt::memory_buffer &buffer, const std::shared_ptr<LogEvent> &event) {
@@ -131,6 +90,5 @@ StringFormatter::StringFormatter(const std::string &str)
 void StringFormatter::format(fmt::memory_buffer &buffer, const std::shared_ptr<LogEvent> &event) {
     fmt::format_to(std::back_inserter(buffer), "{}", str_);
 }
-
 }  // namespace log
 }  // namespace rein
