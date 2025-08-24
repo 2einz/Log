@@ -5,8 +5,8 @@
 #include <cstring>
 #include <memory>
 #include <mutex>
-#include <system_error>
 
+#include "color.h"
 #include "event.h"
 #include "layout.h"
 #include "level.h"
@@ -87,7 +87,11 @@ bool FileAppender::IsOpen() const {
 bool ConsoleAppender::Log(const std::shared_ptr<LogEvent> event, Level level) {
     std::lock_guard<std::mutex> lock(mutex_);
     if (event->level().cmp(level_)) {
-        fmt::print(stdout, layout_->format(event));
+        fmt::print(stdout, "{}{}{}",
+                   rein::color::get_level_color(event->level()),  // 级别对应颜色
+                   layout_->format(event),                  // 日志内容
+                   rein::color::Color::RESET                      // 重置颜色
+        );
     }
     return true;
 }

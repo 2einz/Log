@@ -30,16 +30,13 @@ void DateTimeFormatter::format(fmt::memory_buffer &buffer, const std::shared_ptr
     auto tp_sec = std::chrono::system_clock::from_time_t(time);
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp - tp_sec).count();
 
-    // 先替换%f为毫秒，得到最终格式字符串
-    // fmt::println("{}\n", fmt::format("{:%Y-%m-%d %H:%M:%S}", local_tm));
-    // {:%Y-%m-%d %H:%M:%S.%f}
-
     size_t dot_f_pos = format_.find(".%f");
     if (dot_f_pos == std::string::npos) {
         // 没有找到毫秒占位符，直接格式化
-        fmt::format_to(std::back_inserter(buffer), fmt::runtime(format_), local_tm);
+        fmt::format_to(std::back_inserter(buffer), fmt::runtime("{" + format_ + "}"), local_tm);
         return;
     }
+
     // 如果有.%f，就使用字符串
     std::string prefix_format = "{" + format_.substr(0, dot_f_pos) + "}";
     std::string time_str = fmt::format(fmt::runtime(prefix_format), local_tm);

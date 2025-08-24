@@ -7,6 +7,7 @@
 
 #include "event.h"
 #include "level.h"
+
 // #include "logger.h"
 
 namespace rein {

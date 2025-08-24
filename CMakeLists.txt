@@ -30,9 +30,8 @@ set(LOG_SOURCES
     layout.cc
     log_manager.cc
     logger.cc
+    color.cc
 )
-# 注意：util.hpp 是头文件，不需要（也不应该）列在 add_executable 中
-
 # 3. 创建可执行文件
 add_executable(${EXECUTABLE_TARGET} ${LOG_SOURCES})
 
