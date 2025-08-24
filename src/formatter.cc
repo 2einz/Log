@@ -1,4 +1,4 @@
-#include "formatter.h"
+#include "log/formatter.h"
 
 #include <ctime>
 #include <iterator>  // for std::back_inserter
@@ -8,7 +8,7 @@
 
 #include "fmt/base.h"
 #include "fmt/format.h"
-#include "logger.h"
+#include "log/logger.h"
 
 namespace rein {
 namespace log {

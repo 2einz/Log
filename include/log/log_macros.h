@@ -1,3 +1,10 @@
+// 日志宏定义文件，包含所有公开的日志记录宏（如 REIN_LOG_DEBUG）
+// 和获取日志器的便捷接口（如 REIN_ROOT_LOGGER()）
+// 使用时直接包含：#include <rein/log_macros.h>
+
+#ifndef REIN_LOG_MACROS_H_
+#define REIN_LOG_MACROS_H_
+
 #include "log_manager.h"
 #include "logger.h"
 
@@ -21,3 +28,5 @@
 #define REIN_LOG_W(fmt, ...) REIN_LOG_WARN(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
 #define REIN_LOG_E(fmt, ...) REIN_LOG_ERROR(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
 #define REIN_LOG_F(fmt, ...) REIN_LOG_FATAL(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
+
+#endif  // REIN_LOG_MACROS_H_

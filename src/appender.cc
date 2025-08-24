@@ -1,4 +1,4 @@
-#include "appender.h"
+#include "log/appender.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -6,10 +6,10 @@
 #include <memory>
 #include <mutex>
 
-#include "color.h"
-#include "event.h"
-#include "layout.h"
-#include "level.h"
+#include "log/color.h"
+#include "log/event.h"
+#include "log/layout.h"
+#include "log/level.h"
 namespace rein {
 namespace log {
 

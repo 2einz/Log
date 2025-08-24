@@ -1,6 +1,6 @@
-#include "level.h"
+#include "log/level.h"
 
-#include "util.hpp"
+#include "log/util.hpp"
 
 namespace rein {
 namespace log {

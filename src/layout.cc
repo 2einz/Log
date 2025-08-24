@@ -1,4 +1,4 @@
-#include "layout.h"
+#include "log/layout.h"
 
 #include <cstddef>
 #include <cstring>
@@ -13,8 +13,8 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 
-#include "event.h"
-#include "formatter.h"
+#include "log/event.h"
+#include "log/formatter.h"
 
 namespace rein {
 namespace log {

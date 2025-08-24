@@ -1,8 +1,8 @@
-#include "log_manager.h"
+#include "log/log_manager.h"
 
-#include "appender.h"
-#include "logger.h"
-#include "layout.h"
+#include "log/appender.h"
+#include "log/logger.h"
+#include "log/layout.h"
 
 namespace rein {
 namespace log {

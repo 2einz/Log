@@ -1,6 +1,6 @@
-#include "color.h"
+#include "log/color.h"
 
-#include "level.h"
+#include "log/level.h"
 
 namespace rein {
 namespace color {
