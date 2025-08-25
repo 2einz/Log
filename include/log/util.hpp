@@ -14,6 +14,12 @@ inline std::string ToUpper(std::string str) {
     return str;
 }
 
+inline std::string ToLower(std::string str) {
+    std::transform(str.begin(), str.end(), str.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return str;
+}
+
 }  // namespace util
 }  // namespace rein
 

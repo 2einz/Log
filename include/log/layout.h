@@ -9,6 +9,8 @@
 #include "appender.h"
 #include "event.h"
 #include "level.h"
+#include "log_constants.h"
+
 namespace rein {
 namespace log {
 class Layout {
@@ -22,7 +24,7 @@ public:
 
     using FormatterFactory = std::function<std::shared_ptr<FormatterItem>()>;
 
-    explicit Layout(const std::string &pattern = "%d{:%Y-%m-%d %H:%M:%S.%f} [%p] %f:%l %m%n");
+    explicit Layout(const std::string &pattern = kDefaultLayout);
     ~Layout() = default;
 
     std::string format(const std::shared_ptr<LogEvent> &event);

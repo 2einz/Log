@@ -34,7 +34,7 @@ Layout::FormatterFactory make_factory(const std::string &param) {
 const std::map<std::string, Layout::FormatterFactory> Layout::formatters_ = {
     {"c", make_factory<NameFormatter>()},
     {"d", make_factory<DateTimeFormatter>("")},  // 实际参数在解析时提取
-    {"f", make_factory<FileNameFormatter>()},
+    {"f", make_factory<FileNameFormatter>()},           // 文件名
     {"l", make_factory<LineFormatter>()},
     {"m", make_factory<MessageFormatter>()},
     {"n", make_factory<NewLineFormatter>()},
@@ -79,6 +79,7 @@ void Layout::parse_pattern() {
         // 处理转义字符
         if ((i + 1) < pattern_.size() && pattern_[i + 1] == '%') {
             buffer.append(1, '%');
+            i++;
             continue;
         }
 

@@ -27,7 +27,7 @@ public:
 */
 class DateTimeFormatter final : public Layout::FormatterItem {
 public:
-    explicit DateTimeFormatter(const std::string &format = ":%Y-%m-%d %H:%M:%S");
+    explicit DateTimeFormatter(const std::string &format = kDefaultDateTimeParam);
 
     void format(fmt::memory_buffer &buffer, const std::shared_ptr<LogEvent> &event) override;
 

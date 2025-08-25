@@ -6,29 +6,25 @@ namespace rein {
 namespace log {
 
 const std::unordered_map<LevelType, std::string> Level::level_map_ = {
-    {LevelType::kUnknown, "UNKNOW"}, {LevelType::kDebug, "DEBUG"},   {LevelType::kInfo, "INFO"},
-    {LevelType::kWarn, "WARN"},      {LevelType::kWarn, "WARNNING"}, {LevelType::kError, "ERROR"},
-    {LevelType::kFatal, "FATAL"}};
+    {LevelType::kUnknown, "UNKNOWN"}, {LevelType::kDebug, "DEBUG"}, {LevelType::kInfo, "INFO"},
+    {LevelType::kWarn, "WARN"},       {LevelType::kError, "ERROR"}, {LevelType::kFatal, "FATAL"}};
 
 const std::unordered_map<std::string, LevelType> Level::str_map_ = {
-    {"UNKNOW", LevelType::kUnknown}, {"DEBUG", LevelType::kDebug},   {"INFO", LevelType::kInfo},
-    {"WARN", LevelType::kWarn},      {"WARNNING", LevelType::kWarn}, {"ERROR", LevelType::kError},
-    {"FATAL", LevelType::kFatal}};
+    {"UNKNOWN", LevelType::kUnknown}, {"DEBUG", LevelType::kDebug}, {"INFO", LevelType::kInfo},
+    {"WARN", LevelType::kWarn},       {"ERROR", LevelType::kError}, {"FATAL", LevelType::kFatal}};
 
 Level::Level()
     : level_(LevelType::kInfo) {}
 
 Level::Level(int level)
     : level_(LevelType::kUnknown) {
-    SetLevel(level);
+    setLevelFromInt(level);
 }
 
 Level::Level(LevelType level)
-    : level_(LevelType::kUnknown) {
-    SetLevel(level);
-}
+    : level_(level) {}
 
-Level::Level(const std::string& level) { level_ = FromString(level); }
+Level::Level(const std::string& level) { setLevelFromString(level); }
 
 LevelType Level::FromString(const std::string& level) {
     auto it = str_map_.find(level);
@@ -60,7 +56,7 @@ bool Level::cmp(int value) { return cmp(static_cast<LevelType>(value)); }
 
 bool Level::cmp(Level value) { return cmp(value.level()); }
 
-bool Level::cmp(LevelType value) { return true; }
+bool Level::cmp(LevelType value) { return value >= level_; }
 
 std::string Level::string() { return ToString(level_); }
 

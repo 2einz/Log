@@ -1,10 +1,16 @@
 #include "log/logger.h"
 
 #include <algorithm>
+#include <exception>
+#include <memory>
+#include <mutex>
+#include <stdexcept>
+#include "fmt/base.h"
+#include "log/appender.h"
 
 namespace rein {
 namespace log {
-Logger::Logger(std::string name, Level level)
+Logger::Logger(const std::string& name, Level level)
     : name_(std::move(name)),
       level_(level) {}
 
@@ -25,17 +31,62 @@ void Logger::log(
     }
 }
 
-void Logger::add_appender(std::shared_ptr<Appender> appender) {
+void Logger::AddAppender(AppenderType type, const std::string& out) {
+    try {
+        auto app = AppenderFactory::CreateAppender(type, out);
+
+        AddAppender(app);
+
+    } catch (const std::exception& e) {
+        fmt::println("Cannot add appender '{}' to logger {}: {}",
+                     AppenderFactory::TypeToString(type), name_, e.what());
+    }
+}
+
+void Logger::AddAppender(std::shared_ptr<Appender> appender) {
+    if (!appender) {
+        throw std::invalid_argument("Cannot add null Appender to logger");
+    }
     std::lock_guard<std::mutex> lock(mutex_);
     // 检查是否已存在
     auto it = std::find(appenders_.begin(), appenders_.end(), appender);
     if (it == appenders_.end()) {
         appenders_.push_back(appender);
+    } else {
+        throw std::runtime_error(
+            fmt::format("Appender '{}' already exists in logger", appender->type_str()));
     }
 }
 
+void Logger::RemoveAppender(AppenderType type, const std::string& name) {
+    std::lock_guard<std::mutex> lock(mutex_);
 
-void Logger::remove_appender(std::shared_ptr<Appender> appender) {
+    for (auto it = appenders_.begin(); it != appenders_.end(); it++) {
+        if ((*it)->type() == type && (*it)->name() == name) {
+            it = appenders_.erase(it);
+            return;
+        }
+    }
+}
+
+void Logger::RemoveAppender(AppenderType type) {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    auto new_end = std::remove_if(appenders_.begin(), appenders_.end(),
+                                  [&](const std::shared_ptr<Appender>& appender) {
+                                      if (appender->type() == type) {
+                                          return true;
+                                      }
+                                      return false;
+                                  });
+
+    appenders_.erase(new_end, appenders_.end());
+}
+
+void Logger::RemoveAppender(std::shared_ptr<Appender> appender) {
+    if (!appender) {
+        throw std::invalid_argument("Cannot del null Appender from logger");
+    }
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = std::find(appenders_.begin(), appenders_.end(), appender);
     if (it != appenders_.end()) {
@@ -43,14 +94,24 @@ void Logger::remove_appender(std::shared_ptr<Appender> appender) {
     }
 }
 
-void Logger::clear_appenders() {
+void Logger::ClearAppenders() {
     std::lock_guard<std::mutex> lock(mutex_);
     appenders_.clear();
 }
 
-void Logger::set_level(Level level) {
+void Logger::SetLevel(Level level) {
     std::lock_guard<std::mutex> lock(mutex_);
     level_ = level;
+}
+
+std::shared_ptr<Appender> Logger::appender(AppenderType type, const std::string& name) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto it : appenders_) {
+        if (it->name() == name && it->type() == type) {
+            return it;
+        }
+    }
+    return nullptr;
 }
 
 Level Logger::level() const {
@@ -59,9 +120,7 @@ Level Logger::level() const {
     return level_;
 }
 
-const std::string& Logger::name() const {
-    return name_;
-}
+const std::string& Logger::name() const { return name_; }
 
 }  // namespace log
 }  // namespace rein

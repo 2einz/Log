@@ -1,3 +1,6 @@
+#ifndef REIN_LOG_LOGGER_H_
+#define REIN_LOG_LOGGER_H_
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,18 +39,25 @@ public:
     void fatal(
         const char* file, uint32_t line, const char* func, const std::string& fmt, Args&&... args);
 
-    void add_appender(std::shared_ptr<Appender> appender);
-    void remove_appender(std::shared_ptr<Appender> appender);
-    void clear_appenders();
+    void AddAppender(std::shared_ptr<Appender> appender);
+    void AddAppender(AppenderType type, const std::string& out = kConsole);
 
-    void set_level(Level level);
+    void RemoveAppender(AppenderType type, const std::string& name);
+    void RemoveAppender(AppenderType type);
+    void RemoveAppender(std::shared_ptr<Appender> appender);
+
+    void ClearAppenders();
+
+    std::shared_ptr<Appender> appender(AppenderType type, const std::string& name = kConsole);
+
+    void SetLevel(Level level);
+
     Level level() const;
-
     const std::string& name() const;
 
 private:
     // 私有构造函数，强制通过 LogManager 创建
-    explicit Logger(std::string name, Level level = Level(LevelType::kDebug));
+    explicit Logger(const std::string& name, Level level = Level(LevelType::kDebug));
 
     void log(
         Level level, const char* file, uint32_t line, const char* func, const std::string& message);
@@ -106,3 +116,6 @@ void Logger::fatal(
 
 }  // namespace log
 }  // namespace rein
+
+
+#endif // REIN_LOG_LOGGER_H_

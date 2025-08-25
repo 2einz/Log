@@ -1,16 +1,32 @@
 
+#include <exception>
+#include <iostream>
+
 #include "log/log_macros.h"
 
 int main() {
     auto logger = REIN_ROOT_LOGGER();
-    // std::cout << "Root Logger's current level is: "
-    //           << logger->level().string() << std::endl;
 
-    // // 默认级别应该是 INFO 或 DEBUG，如果这里输出了 WARN 或更高，问题就找到了
+    REIN_ADD_CONSOLE_LOGGER("console");
 
-    REIN_LOG_D("This is a debug message.");  // 这条可能不会显示
-    REIN_LOG_I("This is an info message.");
+    auto console_log = REIN_GET_LOGGER("console");
 
-    REIN_LOG_W("This is a warning message.");
+    REIN_ADD_FILE_APPENDER(console_log, "log.txt");
+
+    if (console_log) {
+        REIN_LOG_INFO(console_log, "Console Logger established.");
+    }
+
+    try {
+        REIN_ADD_FILE_LOGGER("database", "db.txt");
+        auto db_log = REIN_GET_LOGGER("database");
+
+        if (db_log) {
+            REIN_LOG_ERROR(db_log, "This is a error message");
+        }
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+
     return 0;
 }

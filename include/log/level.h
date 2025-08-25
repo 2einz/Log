@@ -19,7 +19,7 @@ class Level {
 
 public:
     Level();
-    explicit Level(LevelType level);  // 显式构造
+    explicit Level(LevelType level);
     explicit Level(int level);
     explicit Level(const std::string& level);
 
