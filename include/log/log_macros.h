@@ -5,23 +5,45 @@
 #ifndef REIN_LOG_MACROS_H_
 #define REIN_LOG_MACROS_H_
 
-#include "log_manager.h"
-#include "logger.h"
+#include <cerrno>
+
+#include "log_manager.h"  // IWYU pragma: keep
+#include "logger.h"       // IWYU pragma: keep
+#include "util.hpp"       // IWYU pragma: keep
 
 // 获取 root logger 的便捷宏
 #define REIN_ROOT_LOGGER() rein::log::LogManager::instance().root_logger()
 
+// 定义文件路径类型选择器
+// 0: 使用完整路径 (__FILE__)
+// 1: 使用仅文件名 (REIN_UTIL_FILE)
+// 2: 使用相对路径 (REIN_UTIL_RELA_FILE)
+#ifndef REIN_LOG_FILE_PATH_TYPE
+    #define REIN_LOG_FILE_PATH_TYPE 2  // 默认使用相对路径
+#endif
+
+// 根据条件选择对应的文件路径宏
+#if REIN_LOG_FILE_PATH_TYPE == 0
+    #define REIN_LOG_FILE __FILE__
+#elif REIN_LOG_FILE_PATH_TYPE == 1
+    #define REIN_LOG_FILE REIN_UTIL_FILE
+#else
+    #define REIN_LOG_FILE REIN_UTIL_RELA_FILE
+#endif
+
 // 通用日志宏
 #define REIN_LOG_DEBUG(logger, fmt, ...) \
-    logger->debug(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+    logger->debug(REIN_LOG_FILE, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define REIN_LOG_INFO(logger, fmt, ...) \
-    logger->info(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+    logger->info(REIN_LOG_FILE, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define REIN_LOG_WARN(logger, fmt, ...) \
-    logger->warn(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+    logger->warn(REIN_LOG_FILE, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define REIN_LOG_ERROR(logger, fmt, ...) \
-    logger->error(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+    logger->error(REIN_LOG_FILE, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define REIN_LOG_FATAL(logger, fmt, ...) \
-    logger->fatal(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+    logger->fatal(REIN_LOG_FILE, __LINE__, __func__, fmt, ##__VA_ARGS__)
+#define REIN_LOG_PERROR(logger, fmt, ...) \
+    logger->perr(REIN_LOG_FILE, __LINE__, __func__, fmt, ##__VA_ARGS__)
 
 // Root Logger 便捷宏
 #define REIN_LOG_D(fmt, ...) REIN_LOG_DEBUG(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
@@ -29,6 +51,7 @@
 #define REIN_LOG_W(fmt, ...) REIN_LOG_WARN(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
 #define REIN_LOG_E(fmt, ...) REIN_LOG_ERROR(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
 #define REIN_LOG_F(fmt, ...) REIN_LOG_FATAL(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
+#define REIN_LOG_PE(fmt, ...) REIN_LOG_PERROR(REIN_ROOT_LOGGER(), fmt, ##__VA_ARGS__)
 
 // 配置宏
 /**
@@ -93,8 +116,9 @@
  * @param logger_name Logger 的名称 (字符串)。
  * @return 如果成功添加则返回 true，否则返回 false。
  */
-#define REIN_ADD_CONSOLE_APPENDER(logger_name) \
-    rein::log::LogManager::instance().AddAppender(logger_name, rein::log::AppenderType::CONSOLE, kConsole)
+#define REIN_ADD_CONSOLE_APPENDER(logger_name)                                                   \
+    rein::log::LogManager::instance().AddAppender(logger_name, rein::log::AppenderType::CONSOLE, \
+                                                  kConsole)
 
 /**
  * @brief 为一个已存在的 Logger 添加一个新的 File Appender。

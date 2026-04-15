@@ -34,7 +34,7 @@ Layout::FormatterFactory make_factory(const std::string &param) {
 const std::map<std::string, Layout::FormatterFactory> Layout::formatters_ = {
     {"c", make_factory<NameFormatter>()},
     {"d", make_factory<DateTimeFormatter>("")},  // 实际参数在解析时提取
-    {"f", make_factory<FileNameFormatter>()},           // 文件名
+    {"f", make_factory<FileNameFormatter>()},    // 文件名
     {"l", make_factory<LineFormatter>()},
     {"m", make_factory<MessageFormatter>()},
     {"n", make_factory<NewLineFormatter>()},
@@ -55,9 +55,6 @@ std::string Layout::format(const std::shared_ptr<LogEvent> &event) {
 }
 
 std::string Layout::format(const std::shared_ptr<LogEvent> &event, Level level) {
-    if (!event->level().cmp(level)) {
-        return "";
-    }
     fmt::memory_buffer buffer;
     for (const auto &item : items_) {
         item->format(buffer, event);
@@ -134,8 +131,8 @@ void Layout::parse_pattern() {
     }
 
     if (!buffer.empty()) {
-    items_.push_back(std::make_shared<StringFormatter>(buffer));
-}
+        items_.push_back(std::make_shared<StringFormatter>(buffer));
+    }
 }
 
 }  // namespace log

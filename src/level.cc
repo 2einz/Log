@@ -50,13 +50,11 @@ void Level::setLevelFromString(const std::string& level) {
 
 void Level::setLevelFromInt(int level) { SetLevel(static_cast<LevelType>(level)); }
 
-bool Level::cmp(const std::string& value) { return cmp(FromString(value)); }
-
 bool Level::cmp(int value) { return cmp(static_cast<LevelType>(value)); }
 
 bool Level::cmp(Level value) { return cmp(value.level()); }
 
-bool Level::cmp(LevelType value) { return value >= level_; }
+bool Level::cmp(LevelType value) { return value <= level_; }
 
 std::string Level::string() { return ToString(level_); }
 

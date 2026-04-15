@@ -4,8 +4,12 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <fmt/format.h>
+
 #include "appender.h"
 #include "event.h"
+
 namespace rein {
 namespace log {
 
@@ -37,6 +41,10 @@ public:
 
     template <typename... Args>
     void fatal(
+        const char* file, uint32_t line, const char* func, const std::string& fmt, Args&&... args);
+
+    template <typename... Args>
+    void perr(
         const char* file, uint32_t line, const char* func, const std::string& fmt, Args&&... args);
 
     void AddAppender(std::shared_ptr<Appender> appender);
@@ -114,8 +122,19 @@ void Logger::fatal(
     }
 }
 
+template <typename... Args>
+void Logger::perr(
+    const char* file, uint32_t line, const char* func, const std::string& fmt, Args&&... args) {
+    // 格式化用户提供的消息
+    std::string user_message = fmt::format(fmt, std::forward<Args>(args)...);
+    // 拼接错误码信息
+    std::string full_message = fmt::format("{} [errno: {}]", user_message, strerror(errno));
+
+    log(Level(LevelType::kError), file, line, func,
+        fmt::format(full_message, std::forward<Args>(args)...));
+}
+
 }  // namespace log
 }  // namespace rein
 
-
-#endif // REIN_LOG_LOGGER_H_
+#endif  // REIN_LOG_LOGGER_H_

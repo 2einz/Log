@@ -12,7 +12,15 @@
 namespace rein {
 namespace log {
 
-enum class LevelType { kUnknown = 0, kDebug = 1, kInfo = 2, kWarn = 3, kError = 4, kFatal = 5 };
+// enum class LevelType { kUnknown = 0, kDebug = 1, kInfo = 2, kWarn = 3, kError = 4, kFatal = 5 };
+enum class LevelType {
+    kFatal = 0,  // 最严重
+    kError = 1,
+    kWarn = 2,
+    kInfo = 3,
+    kDebug = 4,
+    kUnknown = 5  // 未知级别
+};
 
 class Level {
     friend std::ostream& operator<<(std::ostream& os, const Level& l);
@@ -27,7 +35,6 @@ public:
     Level(const Level&) = default;
     Level& operator=(const Level&) = default;
 
-    bool cmp(const std::string& value);
     bool cmp(int value);
     bool cmp(LevelType value);
     bool cmp(Level value);

@@ -1,4 +1,4 @@
-#ifndef REIN_COLOR_H_  // 使用唯一的宏名
+#ifndef REIN_COLOR_H_
 #define REIN_COLOR_H_
 #include "level.h"
 
@@ -31,10 +31,10 @@ public:
     static constexpr const char* BRIGHT_WHITE = "\033[97m";
 };
 
+// 声明函数
 const char* get_level_color(const rein::log::Level& level);
-;
 
 }  // namespace color
 }  // namespace rein
 
-#endif
+#endif  // REIN_COLOR_H_
